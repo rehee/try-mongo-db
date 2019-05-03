@@ -18,11 +18,21 @@ namespace TryMongoDB.Controllers
       var dbConnect = @"mongodb+srv://rehee_1:rehee_1_psw@cluster0-igkz0.gcp.mongodb.net/test?retryWrites=true";
       var dbName = "lalala";
       var db = new MongoRepo(dbConnect, dbName);
-      var class2 = new Class2();
-      db.Class2s.Add(class2);
-      db.SaveChanges();
-      var d = new ApplicationDbContext();
-      
+      var start = DateTime.Now;
+      //for (var i = 0; i < 10; i++)
+      //{
+      //  var class2 = new Class2();
+      //  db.Class2s.Add(class2);
+      //  db.SaveChanges();
+      //}
+      //var d = new ApplicationDbContext();
+      var classes = db.Class2s.ToList();
+      classes.ForEach(b =>
+      {
+        db.Class2s.Remove(b);
+        db.SaveChanges();
+      });
+      var end = DateTime.Now;
       //var table = "Class2";
       //var lists = db.MongoDbIntKeyCounts.Where(b => b.TableName == table).ToList().FirstOrDefault();
       //lists.KeyCount++;
@@ -30,7 +40,7 @@ namespace TryMongoDB.Controllers
       ////bson["_id"] = lists.Id;
       //bson.Remove("_id");
       //db.MongoDbIntKeyCountsCollection.UpdateOne<MongoDbIntKeyCount>(b => b.TableName == table, new BsonDocument { { "$set", bson } });
-      return Content("");
+      return Content(classes.Count.ToString() + " " + (end - start).Seconds.ToString());
     }
 
     public ActionResult About()
@@ -39,7 +49,7 @@ namespace TryMongoDB.Controllers
 
       return View();
     }
-    
+
     public ActionResult Contact()
     {
       ViewBag.Message = "Your contact page.";

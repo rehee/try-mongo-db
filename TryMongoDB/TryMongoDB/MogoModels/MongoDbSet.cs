@@ -129,7 +129,25 @@ namespace TryMongoDB.MogoModels
 
     public T Remove(T entity)
     {
-      throw new NotImplementedException();
+      Action action = () =>
+      {
+        try
+        {
+          var id = entity.GetType().GetProperties().Where(b => b.Name == "Id").FirstOrDefault();
+          if (id == null)
+          {
+            return;
+          }
+          var idValue = id.GetValue(entity);
+          this.collection.DeleteOne(new { Id = idValue }.ToBsonDocument());
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine(ex.Message);
+        }
+      };
+      this.repo.RemoveActionQue.Add(action);
+      return entity;
     }
 
     TDerivedEntity IDbSet<T>.Create<TDerivedEntity>()

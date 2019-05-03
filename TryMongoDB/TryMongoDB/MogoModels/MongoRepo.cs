@@ -68,10 +68,22 @@ namespace TryMongoDB.MogoModels
     public IDbSet<MongoDbIntKeyCount> MongoDbIntKeyCounts { get; set; }
 
     public List<Action> AddActionQue { get; set; } = new List<Action>();
-
+    public List<Action> RemoveActionQue { get; set; } = new List<Action>();
     public override int SaveChanges()
     {
       AddActionQue.ForEach(a =>
+      {
+        try
+        {
+          a();
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine(ex.Message);
+        }
+
+      });
+      RemoveActionQue.ForEach(a =>
       {
         try
         {
@@ -128,6 +140,7 @@ namespace TryMongoDB.MogoModels
     MongoClient Client { get; set; }
     IMongoDatabase DataBase { get; set; }
     List<Action> AddActionQue { get; set; }
+    List<Action> RemoveActionQue { get; set; }
     IDbSet<MongoDbIntKeyCount> MongoDbIntKeyCounts { get; set; }
     IMongoCollection<MongoDbIntKeyCount> MongoDbIntKeyCountsCollection { get; set; }
   }
