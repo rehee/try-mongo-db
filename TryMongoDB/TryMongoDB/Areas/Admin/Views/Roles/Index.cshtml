@@ -1,0 +1,73 @@
+﻿@model RolesIndexView
+@{
+  ViewBag.Title = "User and Roles";
+  var tableContent = SDHCUserManager.GetContentTableHtmlView(Model.Users);
+  tableContent.FirstRow = new ContentTableOption()
+  {
+    ButtonClass = "",
+    RowAction = "A",
+    RowArea = "A",
+    RowController = "A",
+    RowObject = (b) => new { },
+    RowTitle = b => "1",
+  };
+  tableContent.Options = new List<ContentTableOption>();
+  tableContent.Options.Add(new ContentTableOption()
+  {
+    ButtonClass = "",
+    RowAction = "A",
+    RowArea = "A",
+    RowController = "A",
+    RowObject = (b) => new { },
+    RowTitle = b => "",
+  });
+  tableContent.DisableDelete = true;
+}
+
+<div class="row clearfix">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="button-box">
+          <a href="@Url.Action("RoleList","Roles",new { @area=G.AdminPath })" class="btn btn-success">
+            Management Roles
+          </a>
+          <a href="@Url.Action("CreateUser","Roles",new { @area=G.AdminPath })" type="button" class="btn btn-info">
+            Create User
+          </a>
+        </div>
+        <br />
+        <h2>
+          @foreach (var item in Model.RoleAndUsers)
+          {
+            <a href="@Url.Action("Index","Roles",new { @area=G.AdminPath,@id=item.RoleName } )">@item.RoleDisplayName (@item.Users)</a>
+          }
+
+        </h2>
+      </div>
+
+      <div class="body">
+        @{ Html.RenderPartial("Contents/_ContentTableHtml", tableContent); }
+      </div>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+@section script{
+  <script src="/admin-lib/plugins/footable/js/footable.all.min.js"></script>
+  <script src="/admin-lib/plugins/footable/js/footable.min.js"></script>
+  <script>
+    $(function () {
+      $('.basic-example').DataTable();
+    });
+  </script>
+}
+
+
+

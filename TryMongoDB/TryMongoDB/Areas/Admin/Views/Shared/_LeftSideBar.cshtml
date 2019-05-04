@@ -1,0 +1,55 @@
+﻿<aside class="aside">
+  <!-- START Sidebar (left)-->
+  <div class="aside-inner">
+    <nav data-sidebar-anyclick-close="" class="sidebar">
+      <!-- START sidebar nav-->
+      <ul class="nav menu">
+        <!-- Iterates over all sidebar items-->
+        <li class="nav-heading ">
+          <h4>WEB PAGES</h4>
+        </li>
+        <li>
+          <a href="@Url.Action("Index","Content",new { @id=0, @area=G.AdminPath })" title="Pages">
+            <em class="material-icons">description</em>
+            <span>Page</span>
+          </a>
+        </li>
+        <li class="nav-heading ">
+          <h4>WEB CONTENTS</h4>
+        </li>
+        @foreach (var item in ModelManager.ModelManagerMapper)
+        {
+          <li>
+            <a href="@Url.Action("Index","ModelManagement",new { @area=G.AdminPath,@id=item })" title="@item">
+              <em class="material-icons">description</em>
+              <span>@item.GetModelTitle()</span>
+            </a>
+          </li>
+        }
+        <li>
+          <hr />
+        </li>
+        <li class="nav-heading ">
+          <h4>Roles And Users</h4>
+        </li>
+        <li>
+          <a href="@Url.Action("Index","Roles",new { @id="", @area=G.AdminPath })" title="Management User">
+            <em class="material-icons">account_box</em>
+            <span>Manage Role And User</span>
+          </a>
+        </li>
+        <li class="nav-heading ">
+          <h4>LogOff</h4>
+        </li>
+        <li>
+          <a href="@Url.Action("LogOff","Account",new { @area="" })" title="Management User">
+            <em class="material-icons">power_settings_new</em>
+            <span>LogOff System</span>
+          </a>
+        </li>
+      </ul>
+      <!-- END sidebar nav-->
+    </nav>
+  </div>
+  <!-- #END# Sidebar (left)-->
+</aside>

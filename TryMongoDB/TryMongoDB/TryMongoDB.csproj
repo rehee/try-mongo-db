@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\SDHC.Admin.Lib.0.0.1\build\SDHC.Admin.Lib.props" Condition="Exists('..\packages\SDHC.Admin.Lib.0.0.1\build\SDHC.Admin.Lib.props')" />
   <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -60,9 +61,6 @@
     </Reference>
     <Reference Include="RazorGenerator.Mvc, Version=2.0.0.0, Culture=neutral, PublicKeyToken=7b26dc2a43f6a0d4, processorArchitecture=MSIL">
       <HintPath>..\packages\RazorGenerator.Mvc.2.4.9\lib\net40\RazorGenerator.Mvc.dll</HintPath>
-    </Reference>
-    <Reference Include="SDHC.Common.Entity, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SDHC.CMF.Core.0.1.0\lib\net462\SDHC.Common.Entity.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -196,10 +194,17 @@
     <Compile Include="App_Start\IdentityConfig.cs" />
     <Compile Include="App_Start\RazorGeneratorMvcStart.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="App_Start\StartUp.cs" />
+    <Compile Include="Areas\Admin\Controllers\DashBoardController.cs" />
+    <Compile Include="Areas\Admin\E\EAdmin.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="E\EConfit.cs" />
+    <Compile Include="E\EExtends.cs" />
+    <Compile Include="E\EInitConfig.cs" />
+    <Compile Include="E\ELanguage.cs" />
+    <Compile Include="E\EUser.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -209,6 +214,8 @@
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="MogoModels\MongoDbSet.cs" />
     <Compile Include="MogoModels\MongoRepo.cs" />
+    <Compile Include="MongoAuths\MongoUserStore.cs" />
+    <Compile Include="MongoAuths\MUserStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -223,6 +230,19 @@
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Areas\Admin\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\Admin\Views\DashBoard\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Dropdown\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Dropdown\IndexSelect.cshtml" />
+    <Content Include="Areas\Admin\Views\Roles\_CreateOrEdit.cshtml" />
+    <Content Include="Areas\Admin\Views\Roles\CreateUser.cshtml" />
+    <Content Include="Areas\Admin\Views\Roles\EditUser.cshtml" />
+    <Content Include="Areas\Admin\Views\Roles\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Roles\RoleList.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\_LeftSideBar.cshtml">
+      <LastGenOutput>_LeftSideBar.generated.cs</LastGenOutput>
+    </Content>
+    <Content Include="Areas\Admin\Views\web.config" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />
@@ -271,6 +291,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Areas\Admin\Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
@@ -284,6 +305,28 @@
     <None Include="packages.config" />
     <Content Include="Scripts\jquery-3.3.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.3.1.min.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\sdhc.sql.mvc5\Admin\Admin.csproj">
+      <Project>{429cb85d-6359-4365-b5d4-8e97722a730d}</Project>
+      <Name>Admin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\sdhc.sql.mvc5\Entity\Entities.csproj">
+      <Project>{f2c8f800-1b09-4f8c-8099-edbf5088098d}</Project>
+      <Name>Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\sdhc.sql.mvc5\SDHC.Common.Entity\SDHC.Common.Entity.csproj">
+      <Project>{27b1ce81-9446-4e82-a23d-10d6f4269c16}</Project>
+      <Name>SDHC.Common.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\sdhc.sql.mvc5\SDHC.Common\SDHC.Common.csproj">
+      <Project>{38ac9be4-4fd0-4db7-827a-e0bb80e3dde3}</Project>
+      <Name>SDHC.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\sdhc.sql.mvc5\SDHC.Core\SDHC.Core.csproj">
+      <Project>{dc85a3fd-2e7b-4eca-9cd9-50840c52f110}</Project>
+      <Name>SDHC.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -318,7 +361,10 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+    <Error Condition="!Exists('..\packages\SDHC.Admin.Lib.0.0.1\build\SDHC.Admin.Lib.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SDHC.Admin.Lib.0.0.1\build\SDHC.Admin.Lib.props'))" />
+    <Error Condition="!Exists('..\packages\SDHC.Admin.Lib.0.0.1\build\SDHC.Admin.Lib.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SDHC.Admin.Lib.0.0.1\build\SDHC.Admin.Lib.targets'))" />
   </Target>
+  <Import Project="..\packages\SDHC.Admin.Lib.0.0.1\build\SDHC.Admin.Lib.targets" Condition="Exists('..\packages\SDHC.Admin.Lib.0.0.1\build\SDHC.Admin.Lib.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

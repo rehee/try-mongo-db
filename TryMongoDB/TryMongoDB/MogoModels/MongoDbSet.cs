@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
@@ -12,16 +13,17 @@ using System.Web;
 
 namespace TryMongoDB.MogoModels
 {
-  public interface IMongoSet
+  public interface IUpdate
   {
-
+    void Update(object entity);
   }
-  public class MongoDbSet<T> : IMongoSet, IDbSet<T> where T : class
+  public class MongoDbSet<T> : IUpdate, IDbSet<T> where T : class
   {
     private IMongoDatabase db;
     private IQueryable<T> thisQ { get; set; }
     private IBaseMongoRepo repo { get; set; }
     private IMongoCollection<T> collection { get; set; }
+    private IMongoCollection<BsonDocument> collectionBson { get; set; }
     public string table { get; set; }
     public MongoDbSet(IBaseMongoRepo repo, string table = "")
     {
@@ -34,10 +36,11 @@ namespace TryMongoDB.MogoModels
       }
       this.table = table;
       collection = db.GetCollection<T>(table);
+      collectionBson = db.GetCollection<BsonDocument>(table);
       thisQ = db.GetCollection<T>(table).AsQueryable();
     }
     public ObservableCollection<T> Local => new ObservableCollection<T>();
-
+   
     public Expression Expression => this.thisQ.Expression;
 
     public Type ElementType => thisQ.ElementType;
@@ -91,7 +94,14 @@ namespace TryMongoDB.MogoModels
               key.SetValue(entity, Guid.NewGuid().ToString());
             }
           }
-          collection.InsertOne(entity);
+          var type = entity.GetType();
+          var ignoredKey = type.GetProperties().Where(b =>
+              b.CustomAttributes.Any(a =>
+                a.AttributeType.Name.Contains("NotMappedAttribute") || a.AttributeType.Name.Contains("IgnoreEdit"))
+            ).Select(b => b.Name).ToList();
+          var bson = entity.ToBsonDocument<T>();
+          ignoredKey.ForEach(b => bson.Remove(b));
+          collectionBson.InsertOne(bson);
           if (currentLongIndex != null)
           {
             currentLongIndex.KeyCount = currentLongIndex.KeyCount + 1;
@@ -103,7 +113,7 @@ namespace TryMongoDB.MogoModels
           Console.WriteLine(ex.Message);
         }
       };
-      this.repo.AddActionQue.Add(action);
+      this.repo.ActionList.Add(action);
       return entity;
     }
 
@@ -146,8 +156,30 @@ namespace TryMongoDB.MogoModels
           Console.WriteLine(ex.Message);
         }
       };
-      this.repo.RemoveActionQue.Add(action);
+      this.repo.ActionList.Add(action);
       return entity;
+    }
+
+    public void Update(object entity)
+    {
+      var type = typeof(T);
+      var idKey = type.GetProperties().FirstOrDefault(b => b.Name == "Id");
+      if (idKey == null)
+        return;
+      var idValue = idKey.GetValue(entity);
+      var tableName = this.table;
+      var bson = entity.ToBsonDocument();
+      bson.Remove("_id");
+      var ignoredKey = type.GetProperties().Where(b =>
+        b.CustomAttributes.Any(a =>
+          a.AttributeType.Name.Contains("NotMappedAttribute") || a.AttributeType.Name.Contains("IgnoreEdit"))
+      ).Select(b => b.Name).ToList();
+      ignoredKey.ForEach(b => bson.Remove(b));
+      Action action = () =>
+      {
+        this.collection.UpdateOne(new { Id = idValue }.ToBsonDocument(), new BsonDocument { { "$set", bson } });
+      };
+      this.repo.ActionList.Add(action);
     }
 
     TDerivedEntity IDbSet<T>.Create<TDerivedEntity>()

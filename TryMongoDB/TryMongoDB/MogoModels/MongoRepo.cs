@@ -14,30 +14,41 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using TryMongoDB.Models;
+using TryMongoDB.MongoAuths;
 
 namespace TryMongoDB.MogoModels
 {
 
-  public class MongoRepo : BaseMongoRepo<ApplicationUser>
+  public class MongoRepo : BaseMongoRepo<UserMongo>
   {
-    public MongoRepo(string connectionString, string database) : base(connectionString, database)
+    public MongoRepo() : base()
     {
-      //Class1s = new MongoDbSet<Class1>(this);
+      this.connectionString = @"mongodb://localhost:27017";
+      this.database = "lalala";
+      Init();
+    }
+    public static MongoRepo Create()
+    {
+      return new MongoRepo();
     }
     [MongoDbSetOption(ISetType = typeof(MongoDbSet<Class1>))]
     public IDbSet<Class1> Class1s { get; set; }
-    [MongoDbSetOption(ISetType = typeof(MongoDbSet<Class2>))]
+    [MongoDbSetOption(ISetType = typeof(MongoDbSet<Class2>), Table = "Content1")]
     public IDbSet<Class2> Class2s { get; set; }
+    [MongoDbSetOption(ISetType = typeof(MongoDbSet<SDHCRoot>), Table = "Content2")]
+    public IDbSet<SDHCRoot> SDHCRoots { get; set; }
   }
-  public class BaseMongoRepo<TUser> : IdentityDbContext<TUser>, IBaseMongoRepo where TUser : IdentityUser, new()
+  public class BaseMongoRepo<TUser> : IdentityMongoDB<TUser>, IBaseMongoRepo where TUser : UserMongo, new()
   {
     public MongoClient Client { get; set; }
     public IMongoDatabase DataBase { get; set; }
+    public string connectionString { get; set; } = "";
+    public string database { get; set; } = "";
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
       Console.WriteLine("model create");
     }
-    public BaseMongoRepo(string connectionString, string database)
+    public void Init()
     {
       Client = new MongoClient(connectionString);
       DataBase = Client.GetDatabase(database);
@@ -63,15 +74,18 @@ namespace TryMongoDB.MogoModels
       MongoDbIntKeyCountsCollection = DataBase.GetCollection<MongoDbIntKeyCount>("__MongoDbIntKeyCount");
       Users = new MongoDbSet<TUser>(this, "_user");
     }
+    public BaseMongoRepo()
+    {
+
+    }
 
     [MongoDbSetOption(ISetType = typeof(MongoDbSet<MongoDbIntKeyCount>), Table = "__MongoDbIntKeyCount")]
     public IDbSet<MongoDbIntKeyCount> MongoDbIntKeyCounts { get; set; }
 
-    public List<Action> AddActionQue { get; set; } = new List<Action>();
-    public List<Action> RemoveActionQue { get; set; } = new List<Action>();
+    public List<Action> ActionList { get; set; } = new List<Action>();
     public override int SaveChanges()
     {
-      AddActionQue.ForEach(a =>
+      ActionList.ForEach(a =>
       {
         try
         {
@@ -83,18 +97,7 @@ namespace TryMongoDB.MogoModels
         }
 
       });
-      RemoveActionQue.ForEach(a =>
-      {
-        try
-        {
-          a();
-        }
-        catch (Exception ex)
-        {
-          Console.WriteLine(ex.Message);
-        }
-
-      });
+      ActionList.Clear();
       return 1;
     }
 
@@ -107,40 +110,51 @@ namespace TryMongoDB.MogoModels
       task.Start();
       return task;
     }
-
+    protected override bool ShouldValidateEntity(DbEntityEntry entityEntry)
+    {
+      return false;
+    }
+    protected override DbEntityValidationResult ValidateEntity(DbEntityEntry entityEntry, IDictionary<object, object> items)
+    {
+      return base.ValidateEntity(entityEntry, items);
+    }
     public override Task<int> SaveChangesAsync()
     {
       return SaveChangesAsync(new CancellationToken());
     }
     #region
 
-    [MongoDbSetOption(ISetType = typeof(MongoDbSet<IdentityRole>), Table = "__Roles")]
-    public override IDbSet<IdentityRole> Roles { get; set; }
+    [MongoDbSetOption(ISetType = typeof(MongoDbSet<MongoRole>), Table = "__Roles")]
+    public override IDbSet<MongoRole> Roles { get; set; }
 
     [MongoDbSetOption(Table = "__Users")]
     public override IDbSet<TUser> Users { get; set; }
 
 
-    [MongoDbSetOption(ISetType = typeof(MongoDbSet<IdentityUserLogin>), Table = "__UserLogins")]
-    public IDbSet<IdentityUserLogin> UserLogins { get; set; }
+    [MongoDbSetOption(ISetType = typeof(MongoDbSet<UserLogin>), Table = "__UserLogins")]
+    public IDbSet<UserLogin> UserLogins { get; set; }
 
-    [MongoDbSetOption(ISetType = typeof(MongoDbSet<IdentityUserRole>), Table = "__UserRoles")]
-    public IDbSet<IdentityUserRole> UserRoles { get; set; }
+    [MongoDbSetOption(ISetType = typeof(MongoDbSet<UserRole>), Table = "__UserRoles")]
+    public IDbSet<UserRole> UserRoles { get; set; }
 
-    [MongoDbSetOption(ISetType = typeof(MongoDbSet<IdentityUserClaim>), Table = "__UserClaims")]
-    public IDbSet<IdentityUserClaim> UserClaims { get; set; }
+    [MongoDbSetOption(ISetType = typeof(MongoDbSet<UserClaim>), Table = "__UserClaims")]
+    public IDbSet<UserClaim> UserClaims { get; set; }
 
+    [MongoDbSetOption(ISetType = typeof(MongoDbSet<BaseContent>), Table = "Content")]
+    public IDbSet<BaseContent> Contents { get; set; }
+
+    [MongoDbSetOption(ISetType = typeof(MongoDbSet<BaseSelect>), Table = "UserSelect")]
+    public IDbSet<BaseSelect> Selects { get; set; }
 
     public IMongoCollection<MongoDbIntKeyCount> MongoDbIntKeyCountsCollection { get; set; }
     #endregion
   }
 
-  public interface IBaseMongoRepo : ISave
+  public interface IBaseMongoRepo : IContent
   {
     MongoClient Client { get; set; }
     IMongoDatabase DataBase { get; set; }
-    List<Action> AddActionQue { get; set; }
-    List<Action> RemoveActionQue { get; set; }
+    List<Action> ActionList { get; set; }
     IDbSet<MongoDbIntKeyCount> MongoDbIntKeyCounts { get; set; }
     IMongoCollection<MongoDbIntKeyCount> MongoDbIntKeyCountsCollection { get; set; }
   }
@@ -167,5 +181,26 @@ namespace TryMongoDB.MogoModels
   {
     public string Table { get; set; } = "";
     public Type ISetType { get; set; } = null;
+  }
+}
+
+namespace Microsoft.AspNet.Identity.EntityFramework
+{
+  public class MongoRole: IdentityRole<string, UserRole>
+  {
+  }
+  public class UserLogin : IdentityUserLogin
+  {
+    [Key]
+    public string Id { get; set; }
+  }
+  public class UserRole : IdentityUserRole
+  {
+    [Key]
+    public string Id { get; set; }
+  }
+  public class UserClaim :  IdentityUserClaim
+  {
+    
   }
 }

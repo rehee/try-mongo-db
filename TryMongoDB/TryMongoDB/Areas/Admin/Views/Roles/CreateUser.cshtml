@@ -1,0 +1,15 @@
+﻿@model UserCreateView
+@{
+    ViewBag.Title = "Create User";
+}
+<div class="row clearfix">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="body">
+                <form action="@Url.Action("CreateUser","Roles",new { @area=G.AdminPath })" method="post" enctype="multipart/form-data">
+                    @{ Html.RenderPartial("_CreateOrEdit", Model);}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

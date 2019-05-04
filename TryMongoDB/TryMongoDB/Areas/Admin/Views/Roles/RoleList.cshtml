@@ -1,0 +1,87 @@
+﻿@model IEnumerable<RoleNameAndUser>
+@{
+    ViewBag.Title = "RoleList";
+}
+
+<div class="modal fade" id="create-role-model" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="@Url.Action("CreateRole","Roles",new { @area=G.AdminPath })" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">x</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Create Role</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Role Admin Name</label>
+                        <input type="text" class="form-control" placeholder="Name" name="name">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<div class="row clearfix">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    Roles
+                </h2>
+                <br />
+                <button type="button" class="btn btn-info waves-effect m-r-20" data-toggle="modal" data-target="#create-role-model">
+                    Create Role
+                </button>
+            </div>
+            <div class="body">
+                <table id="demo-foo-filtering" class="table table-bordered table-hover toggle-circle" data-page-size="7">
+                    <thead>
+                        <tr>
+                            <th data-toggle="true">Role Name</th>
+                            <th>Users</th>
+                            <th>Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.RoleDisplayName</td>
+                                <td>@item.Users</td>
+                                <td>
+                                    <form action="@Url.Action("DeleteRole","Roles",new { @area=G.AdminPath })" method="post">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-danger btn-group" aria-haspopup="true" aria-expanded="false">
+                                            Delete Role
+                                        </button>
+                                    </form>
+                                    
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="5">
+                                <div class="text-right">
+                                    <ul class="pagination"></ul>
+                                </div>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section script{
+    <script src="/admin-lib/plugins/footable/js/footable.all.min.js"></script>
+    <script src="/admin-lib/plugins/footable/js/footable.min.js"></script>
+}

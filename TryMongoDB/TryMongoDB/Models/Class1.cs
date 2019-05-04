@@ -22,18 +22,18 @@ namespace TryMongoDB.Models
     
   }
 
-  [Table("Class2")]
-  public class Class2: IInt64Key
+  
+  public class Class2: SDHCRoot
   {
-    public Class2()
-    {
-
-    }
-    [Key]
-    public Int64 Id { get; set; }
-    public string Title { get; set; }
-    public string Title2 { get; set; }
+    
   }
 
+  public class SDHCRoot: BaseContent
+  {
 
+  }
+  public class SDHCBascSelect : BaseSelect
+  {
+
+  }
 }
