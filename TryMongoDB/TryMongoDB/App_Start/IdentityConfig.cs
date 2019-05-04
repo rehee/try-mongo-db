@@ -39,16 +39,18 @@ namespace System
     public static ApplicationUserManagerMongo Create<T>(IdentityFactoryOptions<ApplicationUserManagerMongo> options, IOwinContext context) where T : DbContext
     {
       ApplicationUserManagerMongo manager;
-      //if (G.MongoDbIuserStore != null)
-      //{
-      //  manager = new ApplicationUserManager(G.MongoDbIuserStore());
-      //}
-      //else
-      //{
-      //  manager = new ApplicationUserManager(new UserStore<SDHCUser>(context.Get<T>()));
-      //}
-      
-      manager = new ApplicationUserManagerMongo(new MUserStore<UserMongo>(context.Get<T>()));
+      if (G.MongoDbIuserStore != null)
+      {
+        
+        
+      }
+      else
+      {
+        //manager = new ApplicationUserManagerMongo(new UserStore<SDHCUser>(context.Get<T>()));
+      }
+      var s = new MongoUserStore<UserMongo>();
+      manager = new ApplicationUserManagerMongo(s);
+      //manager = new ApplicationUserManagerMongo(new MUserStore<UserMongo>(context.Get<T>()));
       // Configure validation logic for usernames
       manager.UserValidator = new UserValidator<UserMongo>(manager)
       {

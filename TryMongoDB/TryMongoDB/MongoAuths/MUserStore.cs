@@ -2,6 +2,7 @@
 using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Linq;
 using System.Security.Claims;
@@ -25,12 +26,22 @@ namespace TryMongoDB.MongoAuths
   }
   public class UserMongo : IdentityUser<string, UserLogin, UserRole, UserClaim>
   {
-    public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<UserMongo> manager)
+    public virtual async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<UserMongo> manager)
     {
       // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
       var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
       // Add custom user claims here
       return userIdentity;
     }
+
+    [NotMapped]
+    [IgnoreEdit]
+    public override ICollection<UserRole> Roles { get;}
+    [NotMapped]
+    [IgnoreEdit]
+    public override ICollection<UserClaim> Claims { get; }
+    [NotMapped]
+    [IgnoreEdit]
+    public override ICollection<UserLogin> Logins { get; }
   }
 }

@@ -15,7 +15,7 @@ namespace TryMongoDB
   {
     public void Configuration(IAppBuilder app)
     {
-      //G.MongoDbIuserStore = () => new MongoUserStore();
+      G.MongoDbIuserStore = () => null;
       SDHCStartup2.Init<MongoRepo, SDHCRoot, SDHCBascSelect, UserMongo>(
        app, () => MongoRepo.Create(), HostingEnvironment.MapPath("/"));
     }
