@@ -33,9 +33,9 @@ namespace TryMongoDB.MogoModels
     }
     [MongoDbSetOption(ISetType = typeof(MongoDbSet<Class1>))]
     public IDbSet<Class1> Class1s { get; set; }
-    [MongoDbSetOption(ISetType = typeof(MongoDbSet<Class2>), Table = "Content1")]
+    [MongoDbSetOption(ISetType = typeof(MongoDbSet<Class2>), Table = "Content")]
     public IDbSet<Class2> Class2s { get; set; }
-    [MongoDbSetOption(ISetType = typeof(MongoDbSet<SDHCRoot>), Table = "Content2")]
+    [MongoDbSetOption(ISetType = typeof(MongoDbSet<SDHCRoot>), Table = "Content")]
     public IDbSet<SDHCRoot> SDHCRoots { get; set; }
   }
   public class BaseMongoRepo<TUser> : IdentityMongoDB<TUser>, IBaseMongoRepo where TUser : UserMongo, new()

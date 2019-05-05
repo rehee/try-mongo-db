@@ -17,8 +17,13 @@ namespace TryMongoDB.Controllers
     {
       var db = new MongoRepo();
       var d = new ApplicationDbContext();
-      var class1 = new Class2();
-      ContentManager.CreateContent(class1);
+      //var class1 = new Class2();
+      //var class2 = new SDHCRoot();
+      //ContentManager.CreateContent(class1);
+      //ContentManager.CreateContent(class2);
+      var list = ContentManager.GetAllChildContent(null).ToList();
+      var types = list.Select(b => b.GetType()).ToList();
+
       return Content($"");
     }
 

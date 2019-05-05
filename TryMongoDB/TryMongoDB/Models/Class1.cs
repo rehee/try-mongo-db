@@ -25,7 +25,7 @@ namespace TryMongoDB.Models
   
   public class Class2: SDHCRoot
   {
-    
+    public string title2 { get; set; }
   }
 
   public class SDHCRoot: BaseContent
